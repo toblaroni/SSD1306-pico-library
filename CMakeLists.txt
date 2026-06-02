@@ -35,7 +35,9 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(OLED_Library OLED_Library.c )
+add_executable(OLED_Library 
+    OLED_Library.c 
+)
 
 pico_set_program_name(OLED_Library "OLED_Library")
 pico_set_program_version(OLED_Library "0.1")
@@ -44,10 +46,20 @@ pico_set_program_version(OLED_Library "0.1")
 pico_enable_stdio_uart(OLED_Library 0)
 pico_enable_stdio_usb(OLED_Library 1)
 
+# Driver library
+add_library(oled_driver
+    oled_driver/oled_driver.c
+)
+
+target_include_directories(oled_driver PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/oled_driver
+)
+
 # Add the standard library to the build
 target_link_libraries(OLED_Library
     pico_stdlib
     hardware_i2c
+    oled_driver
 )
 
 # Add the standard include files to the build
