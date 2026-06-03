@@ -55,10 +55,12 @@ target_include_directories(oled_driver PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/oled_driver
 )
 
-# Add the standard library to the build
-target_link_libraries(OLED_Library
+target_link_libraries(oled_driver
     pico_stdlib
     hardware_i2c
+)
+
+target_link_libraries(OLED_Library
     oled_driver
 )
 
