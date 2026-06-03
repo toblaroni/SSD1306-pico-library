@@ -11,8 +11,16 @@ int main() {
     i2c_init(i2c0, 400000);
     sleep_ms(6000);
 
+    oled_t screen;
+    screen.addr = OLED_ADDR;
+    screen.i2c = i2c0;
+    screen.scl_pin = GPIO_SCL;
+    screen.sda_pin = GPIO_SDA;
+    screen.width = 128;
+    screen.height = 64;
+
     // Initialise the OLED
-    int res = oled_init(i2c0, OLED_ADDR, GPIO_SDA, GPIO_SCL);
+    int res = oled_init(&screen, i2c0, OLED_ADDR, GPIO_SDA, GPIO_SCL);
 
     while(1) {
         switch (res) {
