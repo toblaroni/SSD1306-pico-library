@@ -6,6 +6,7 @@
 
 #define OLED_OK 0
 #define OLED_ERROR_BAD_ADDRESS -1
+#define OLED_ERROR_TIMEOUT -2
 
 typedef struct {
     i2c_inst_t* i2c;
