@@ -1,6 +1,8 @@
 #ifndef OLED_DRIVER_H
 #define OLED_DRIVER_H
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 
@@ -21,7 +23,6 @@ typedef struct {
     uint16_t framebuf_size;
     uint8_t *framebuff;
 } oled_t;
-
 
 int oled_init(oled_t *const screen, i2c_inst_t* i2c, uint8_t address, uint8_t sda, uint8_t scl);
 void oled_update();
