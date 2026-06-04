@@ -10,7 +10,7 @@
 #define OLED_ERROR_BAD_ADDRESS -1
 #define OLED_ERROR_TIMEOUT -2
 #define OLED_ERROR_NULL_FRAMEBUFFER -3
-
+#define OLED_ERROR_OUT_OF_BOUNDS -4
 
 typedef struct {
     i2c_inst_t* i2c;
@@ -24,8 +24,8 @@ typedef struct {
     uint8_t *framebuff;
 } oled_t;
 
-int oled_init(oled_t *const screen, i2c_inst_t* i2c, uint8_t address, uint8_t sda, uint8_t scl);
-void oled_update();
-void oled_clear();
-void oled_draw_pixel();
+int oled_init(oled_t *const screen, i2c_inst_t* i2c, uint8_t address, uint8_t sda, uint8_t scl, uint16_t width, uint16_t height);
+int oled_update(oled_t *const screen);
+void oled_clear(oled_t *const screen);
+int oled_draw_pixel(oled_t *const screen, uint16_t x, uint16_t y, bool on);
 #endif
