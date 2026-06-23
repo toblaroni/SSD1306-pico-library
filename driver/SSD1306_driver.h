@@ -10,7 +10,6 @@
 #define SSD1306_ERROR_BAD_ADDRESS -1
 #define SSD1306_ERROR_TIMEOUT -2
 #define SSD1306_ERROR_NULL_FRAMEBUFFER -3
-#define SSD1306_ERROR_OUT_OF_BOUNDS -4
 
 typedef struct {
     i2c_inst_t* i2c;

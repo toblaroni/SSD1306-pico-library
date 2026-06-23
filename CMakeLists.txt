@@ -55,6 +55,18 @@ target_include_directories(driver PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/driver
 )
 
+add_library(graphics
+    graphics/graphics.c
+)
+
+target_include_directories(graphics PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/graphics
+)
+
+target_link_libraries(graphics
+    pico_stdlib
+)
+
 target_link_libraries(driver
     pico_stdlib
     hardware_i2c
@@ -62,6 +74,7 @@ target_link_libraries(driver
 
 target_link_libraries(OLED_Library
     driver
+    graphics
 )
 
 # Add the standard include files to the build

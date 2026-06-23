@@ -141,8 +141,9 @@ int SSD1306_init(SSD1306_t *const screen, i2c_inst_t* _i2c, uint8_t _address, ui
     // https://github.com/makerportal/rpi-pico-ssd1306/blob/main/micropython/data_display/ssd1306.py#L114
     uint8_t com_pin_cfg = (width > 2*height) ? 0x02 : 0x12;
     // Init sequence
+    // https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf
     uint8_t init_cmds[] = {
-        DISPLAY_OFF,                 // Display off
+        DISPLAY_OFF,                    // Display off
         SET_ADDR_MODE, ADDR_MODE_HORZ,  // Set horizontal addressing mode
         SET_DISP_START_LINE | 0x00,     // Display start line
         SET_SEG_REMAP_RST | 0x01,       // Column address 127 is mapped to SEG0
@@ -164,13 +165,6 @@ int SSD1306_init(SSD1306_t *const screen, i2c_inst_t* _i2c, uint8_t _address, ui
     res = SSD1306_send_cmd_stream(screen, init_cmds, sizeof(init_cmds));
     if (res != SSD1306_OK) return res;
 
-    SSD1306_clear(screen); // Clear the display buffer
-    res = SSD1306_update(screen); // Update the display with cleared buffer
-    if (res != SSD1306_OK) return res;
-
-    // res = SSD1306_send_cmd(screen, DISPLAY_ON); // Turn on the display
-    // if (res != SSD1306_OK) return res;
-
     return SSD1306_OK;
 }
 
@@ -183,25 +177,4 @@ int SSD1306_update(SSD1306_t *const screen) {
     int res = SSD1306_send_cmd_stream(screen, addr_cmds, sizeof(addr_cmds));
     if (res != SSD1306_OK) return res;
     return SSD1306_send_data(screen);
-}
-
-void SSD1306_clear(SSD1306_t *const screen) {
-    memset(screen->framebuff, 0x00, screen->framebuf_size);
-    return;
-}
-
-int SSD1306_draw_pixel(SSD1306_t *const screen, uint16_t x, uint16_t y, bool on) {
-    if (x >= screen->width || y >= screen->height)
-        return SSD1306_ERROR_OUT_OF_BOUNDS;
-
-    int page = y / 8;
-    int bit_pos = y % 8;
-    int byte_index = page * screen->width + x;
-
-    if (on)
-        screen->framebuff[byte_index] |= (1 << bit_pos);
-    else
-        screen->framebuff[byte_index] &= ~(1 << bit_pos);
-
-    return SSD1306_OK;
 }
