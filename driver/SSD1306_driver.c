@@ -168,6 +168,11 @@ int SSD1306_init(SSD1306_t *const screen, i2c_inst_t* _i2c, uint8_t _address, ui
     return SSD1306_OK;
 }
 
+int SSD1306_deinit(SSD1306_t *const screen) {
+    free_framebuffer(screen);
+    return SSD1306_OK;
+}
+
 int SSD1306_update(SSD1306_t *const screen) {
     // Set column/page addresses to update full screen
     uint8_t addr_cmds[] = {
@@ -177,4 +182,16 @@ int SSD1306_update(SSD1306_t *const screen) {
     int res = SSD1306_send_cmd_stream(screen, addr_cmds, sizeof(addr_cmds));
     if (res != SSD1306_OK) return res;
     return SSD1306_send_data(screen);
+}
+
+int SSD1306_on(SSD1306_t *const screen) {
+    return SSD1306_send_cmd(screen, DISPLAY_ON);
+}
+
+int SSD1306_off(SSD1306_t *const screen) {
+    return SSD1306_send_cmd(screen, DISPLAY_OFF);
+}
+
+int SSD1306_invert(SSD1306_t *const screen, bool invert) {
+    return SSD1306_send_cmd(screen, invert ? SET_INV_DISP : SET_NORM_DISP);
 }

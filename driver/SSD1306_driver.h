@@ -24,7 +24,11 @@ typedef struct {
 } SSD1306_t;
 
 int SSD1306_init(SSD1306_t *const screen, i2c_inst_t* i2c, uint8_t address, uint8_t sda, uint8_t scl, uint16_t width, uint16_t height);
+int SSD1306_deinit(SSD1306_t *const screen);
 int SSD1306_update(SSD1306_t *const screen);
-void SSD1306_clear(SSD1306_t *const screen);
-int SSD1306_draw_pixel(SSD1306_t *const screen, uint16_t x, uint16_t y, bool on);
+int SSD1306_on(SSD1306_t *const screen);
+int SSD1306_off(SSD1306_t *const screen);
+int SSD1306_invert(SSD1306_t *const screen, bool invert);
+
+// TODO: Add functions for scrolling, dimming, etc.
 #endif

@@ -1,5 +1,6 @@
 
 #include "driver/SSD1306_driver.h"
+#include "graphics/graphics.h"
 
 #define OLED_ADDR 0x3D
 #define GPIO_SDA 0
@@ -18,6 +19,7 @@ int main() {
     sleep_ms(6000);
 
     SSD1306_t screen;
+    graphics_t gfx;
 
     // Initialise the OLED
     int res = SSD1306_init(&screen, i2c0, OLED_ADDR, GPIO_SDA, GPIO_SCL, 128, 64);
@@ -33,6 +35,8 @@ int main() {
             break;
     }
 
+    graphics_init(&gfx, screen.framebuff, screen.width, screen.height);
+
     // Position
     vec2_t pixel_pos = {128/2, 32};
     // Velocity
@@ -41,8 +45,8 @@ int main() {
     uint16_t update_time_ms = 0;
     
     while(1) {
-        SSD1306_clear(&screen);
-        SSD1306_draw_pixel(&screen, pixel_pos.x, pixel_pos.y, true);
+        graphics_clear(&gfx);
+        graphics_draw_pixel(&gfx, pixel_pos.x, pixel_pos.y, true);
         SSD1306_update(&screen);
         if (pixel_pos.x + vel.x >= screen.width || pixel_pos.x + vel.x < 0) {
             vel.x *= -1;

@@ -6,6 +6,8 @@ void graphics_init(graphics_t *const graphics, uint8_t *framebuff, uint16_t widt
     graphics->framebuff = framebuff;
     graphics->width = width;
     graphics->height = height;
+    graphics->stroke_on = true;
+    graphics->fill_on = true;
 }
 
 
@@ -28,6 +30,20 @@ int graphics_draw_pixel(graphics_t *const gfx, uint16_t x, uint16_t y, bool on) 
     else
         gfx->framebuff[byte_index] &= ~(1 << bit_pos);
 
-    return GRPAPHICS_OK;
+    return GRAPHICS_OK;
 }
 
+int graphics_draw_line(graphics_t *const gfx, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
+    // Bresenham's line algorithm
+    return GRAPHICS_OK;
+}
+
+int graphics_draw_circle(graphics_t *const gfx, uint16_t x0, uint16_t y0, uint16_t radius) {
+    // Midpoint circle algorithm
+    return GRAPHICS_OK;
+}
+
+int graphics_draw_triangle(graphics_t *const gfx, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+    // Draw triangle
+    return GRAPHICS_OK;
+}
