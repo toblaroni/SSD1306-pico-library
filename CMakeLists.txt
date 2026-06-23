@@ -47,21 +47,21 @@ pico_enable_stdio_uart(OLED_Library 0)
 pico_enable_stdio_usb(OLED_Library 1)
 
 # Driver library
-add_library(oled_driver
-    oled_driver/oled_driver.c
+add_library(driver
+    driver/SSD1306_driver.c
 )
 
-target_include_directories(oled_driver PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR}/oled_driver
+target_include_directories(driver PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/driver
 )
 
-target_link_libraries(oled_driver
+target_link_libraries(driver
     pico_stdlib
     hardware_i2c
 )
 
 target_link_libraries(OLED_Library
-    oled_driver
+    driver
 )
 
 # Add the standard include files to the build
