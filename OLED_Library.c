@@ -15,7 +15,7 @@ int main() {
 
     stdio_init_all();
     i2c_init(i2c0, 400 * 1000); 
-    sleep_ms(6000);
+    sleep_ms(500);
 
     SSD1306_t screen;
     graphics_t gfx;
@@ -35,15 +35,13 @@ int main() {
     }
 
     graphics_init(&gfx, screen.framebuff, screen.width, screen.height);
+    graphics_clear(&gfx);
+    graphics_draw_line(&gfx, 0, screen.height/2, screen.width - 1, screen.height / 2);
+    graphics_draw_line(&gfx, screen.width / 2, 0, screen.width / 2, screen.height - 1);
+    SSD1306_update(&screen);
 
     uint32_t frame_count = 0;
     while(1) {
-        graphics_clear(&gfx);
-        for (int x = 0; x < screen.width; x++) {
-            uint8_t y = sin(x * 0.08 + frame_count * 0.1) * (screen.height / 4) + (screen.height / 2);
-            graphics_draw_pixel(&gfx, x, y, true);
-        }
-        SSD1306_update(&screen);
         frame_count++;
     }
 
