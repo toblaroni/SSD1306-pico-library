@@ -81,10 +81,22 @@ int graphics_draw_line(graphics_t *const gfx, uint16_t x0, uint16_t y0, uint16_t
     }
 
     // Bresenham's line algorithm
-    if (x0 > x1 || y0 > y1) {
-        swap_uint16(&x0, &x1);
-        swap_uint16(&y0, &y1);
-    } 
+    int dx = x1 - x0;
+    int dy = y1 - y0;
+    // Negative or positive gradient
+    int step_x = (dx > 0) ? 1 : -1;
+    int step_y = (dy > 0) ? 1 : -1;
+    int two_dy = 2 * dy;
+    int error = two_dy - dx;
+
+    for (int x = x0, y = y0; x <= x1; x += step_x) {
+        graphics_draw_pixel(gfx, x, y, true);
+        error += two_dy;
+        if (error >= 0) {
+            y += step_y;
+            error -= 2 * dx;
+        }
+    }
     
     return GRAPHICS_OK;
 }
