@@ -15,7 +15,7 @@ int main() {
 
     stdio_init_all();
     i2c_init(i2c0, 400 * 1000); 
-    sleep_ms(500);
+    sleep_ms(3000);
 
     SSD1306_t screen;
     graphics_t gfx;
@@ -40,8 +40,17 @@ int main() {
     graphics_draw_line(&gfx, 0, screen.height/2, screen.width - 1, screen.height / 2);
     graphics_draw_line(&gfx, screen.width / 2, 0, screen.width / 2, screen.height - 1);
     // Diagonals
+    printf("Drawing diagonal lines...\n");
     graphics_draw_line(&gfx, 0, 0, screen.width - 1, screen.height - 1);
     graphics_draw_line(&gfx, 0, screen.height - 1, screen.width - 1, 0);
+    // Steep lines
+    printf("Drawing steep lines...\n");
+    graphics_draw_line(&gfx, screen.width/4, 0, screen.width*3/4, screen.height - 1);
+    graphics_draw_line(&gfx, screen.width*3/4, 0, screen.width/4, screen.height - 1);
+    // Shallow lines
+    printf("Drawing shallow lines...\n");
+    graphics_draw_line(&gfx, 0, screen.height/4, screen.width - 1, screen.height*3/4);
+    graphics_draw_line(&gfx, 0, screen.height*3/4, screen.width - 1, screen.height/4);
     SSD1306_update(&screen);
 
     uint32_t frame_count = 0;

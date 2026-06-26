@@ -109,6 +109,10 @@ static int addr_check(SSD1306_t *const screen) {
 
 // Initialise the SSD1306 display.
 int SSD1306_init(SSD1306_t *const screen, i2c_inst_t* _i2c, uint8_t _address, uint8_t gpio_sda, uint8_t gpio_scl, uint16_t width, uint16_t height) {
+    if (width == 0 || height == 0) {
+        printf("ERROR: Invalid display dimensions. Width and height must be greater than 0.\n");
+        return SSD1306_ERROR_BAD_DIMENSIONS;
+    }
     screen->i2c = _i2c;
     screen->addr = _address;
     screen->sda_pin = gpio_sda;

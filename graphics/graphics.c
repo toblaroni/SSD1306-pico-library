@@ -2,6 +2,7 @@
 #include "graphics.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void graphics_init(graphics_t *const graphics, uint8_t *framebuff, uint16_t width, uint16_t height) {
     graphics->framebuff = framebuff;
@@ -65,14 +66,18 @@ static int draw_vertical_line(graphics_t *const gfx, uint16_t x, uint16_t y0, ui
 }
 
 
-int graphics_draw_line(graphics_t *const gfx, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
-    if (x0 >= gfx->width || x1 >= gfx->width || y0 >= gfx->height || y1 >= gfx->height) {
+int graphics_draw_line(graphics_t *const gfx, uint16_t _x0, uint16_t _y0, uint16_t x1, uint16_t y1) {
+    if (_x0 >= gfx->width || x1 >= gfx->width || _y0 >= gfx->height || y1 >= gfx->height) {
         printf(
             "Graphics Error: Line coordinates out of bounds. x0: %u, y0: %u, x1: %u, y1: %u\n", 
-            x0, y0, x1, y1
+            _x0, _y0, x1, y1
         );
         return GRAPHICS_ERROR_OUT_OF_BOUNDS;
     }
+   
+    // Remove unisigned integers to avoid wraparound
+    int x0 = (int)_x0;
+    int y0 = (int)_y0;
    
     if (x0 == x1) {
         return draw_vertical_line(gfx, x0, y0, y1);
@@ -81,23 +86,35 @@ int graphics_draw_line(graphics_t *const gfx, uint16_t x0, uint16_t y0, uint16_t
     }
 
     // Bresenham's line algorithm
-    int dx = x1 - x0;
-    int dy = y1 - y0;
+    int dx = abs((int)x1 - (int)x0);
+    int dy = abs((int)y1 - (int)y0);
     // Negative or positive gradient
-    int step_x = (dx > 0) ? 1 : -1;
-    int step_y = (dy > 0) ? 1 : -1;
-    int two_dy = 2 * dy;
-    int error = two_dy - dx;
+    int step_x = (x1 > x0) ? 1 : -1;
+    int step_y = (y1 > y0) ? 1 : -1;
+    bool x_major = dx >= dy;
+    int error = x_major ? 2*dy - dx : 2*dx - dy;
 
-    for (int x = x0, y = y0; x <= x1; x += step_x) {
-        graphics_draw_pixel(gfx, x, y, true);
-        error += two_dy;
-        if (error >= 0) {
-            y += step_y;
-            error -= 2 * dx;
+    while (1) {
+        // printf("Drawing pixel at (%u, %u)\n", x0, y0);
+        graphics_draw_pixel(gfx, x0, y0, true);
+        if (x0 == x1 && y0 == y1) break;
+        if (x_major) {
+            x0 += step_x;
+            error += 2*dy;
+            if (error > 0) {
+                y0 += step_y;
+                error -= 2*dx;
+            }
+        } else {
+            y0 += step_y;
+            error += 2*dx;
+            if (error > 0) {
+                x0 += step_x;
+                error -= 2*dy;
+            }
         }
     }
-    
+
     return GRAPHICS_OK;
 }
 
