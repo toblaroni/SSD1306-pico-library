@@ -1,3 +1,6 @@
+/*
+ * Basic 2D Graphics functions.
+ */
 
 #include "graphics.h"
 #include <string.h>
@@ -118,8 +121,60 @@ int graphics_draw_line(graphics_t *const gfx, uint16_t _x0, uint16_t _y0, uint16
     return GRAPHICS_OK;
 }
 
+int draw_rectangle(graphics_t *const gfx, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
+    if (gfx->fill_on) {
+        for (uint16_t y = y0; y <= y1; ++y)
+            graphics_draw_line(gfx, x0, y, x1, y);
+    } else {
+        graphics_draw_line(gfx, x0, y0, x1, y0); // Top edge
+        graphics_draw_line(gfx, x1, y0, x1, y1); // Right edge
+        graphics_draw_line(gfx, x1, y1, x0, y1); // Bottom edge
+        graphics_draw_line(gfx, x0, y1, x0, y0); // Left edge
+    }
+    return GRAPHICS_OK;
+}
+
 int graphics_draw_circle(graphics_t *const gfx, uint16_t x0, uint16_t y0, uint16_t radius) {
+    if (x0 >= gfx->width || y0 >= gfx->height) {
+        printf(
+            "Graphics Error: Circle coordinates out of bounds. x0: %u, y0: %u, radius: %u\n", 
+            x0, y0, radius
+        );
+        return GRAPHICS_ERROR_OUT_OF_BOUNDS;
+    }
+
     // Midpoint circle algorithm
+    // https://www.geeksforgeeks.org/dsa/mid-point-circle-drawing-algorithm/
+
+    int x = (int)radius, y = 0;
+
+    // P is the equation of the circle;
+    int P = 1-radius;
+    while (x >= y) {
+        // Draw the points in all octants
+        graphics_draw_pixel(gfx, x0 + x, y0 + y, true);
+        graphics_draw_pixel(gfx, x0 - x, y0 + y, true);
+        graphics_draw_pixel(gfx, x0 + x, y0 - y, true);
+        graphics_draw_pixel(gfx, x0 - x, y0 - y, true);
+        if (x != y) {
+            graphics_draw_pixel(gfx, x0 + y, y0 + x, true);
+            graphics_draw_pixel(gfx, x0 - y, y0 + x, true);
+            graphics_draw_pixel(gfx, x0 + y, y0 - x, true);
+            graphics_draw_pixel(gfx, x0 - y, y0 - x, true);
+        }
+
+        y++;
+
+        // Mid point inside / on perimeter
+        if (P <= 0) 
+            P += 2*y + 1;
+        else {  // Outside perim
+            x--;
+            P += 2*y - 2*x + 1;
+        }
+
+    }
+    
     return GRAPHICS_OK;
 }
 

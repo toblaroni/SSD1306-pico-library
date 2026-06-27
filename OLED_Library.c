@@ -36,6 +36,7 @@ int main() {
 
     graphics_init(&gfx, screen.framebuff, screen.width, screen.height);
     graphics_clear(&gfx);
+    /*
     // Horizontal and vertical
     graphics_draw_line(&gfx, 0, screen.height/2, screen.width - 1, screen.height / 2);
     graphics_draw_line(&gfx, screen.width / 2, 0, screen.width / 2, screen.height - 1);
@@ -51,6 +52,15 @@ int main() {
     printf("Drawing shallow lines...\n");
     graphics_draw_line(&gfx, 0, screen.height/4, screen.width - 1, screen.height*3/4);
     graphics_draw_line(&gfx, 0, screen.height*3/4, screen.width - 1, screen.height/4);
+    */
+    // drawing circles
+    printf("Drawing circles...\n");
+    graphics_draw_circle(&gfx, screen.width/2, screen.height/2, 0);
+    graphics_draw_circle(&gfx, screen.width/2, screen.height/2, 10);
+    graphics_draw_circle(&gfx, screen.width/2, screen.height/2, 20);
+    graphics_draw_circle(&gfx, screen.width/2, screen.height/2, 30);
+    graphics_draw_circle(&gfx, screen.width/2, screen.height/2, 40);
+    graphics_draw_circle(&gfx, screen.width/2, screen.height/2, 50);
     SSD1306_update(&screen);
 
     uint32_t frame_count = 0;
