@@ -99,19 +99,19 @@ int graphics_draw_line(graphics_t *const gfx, uint16_t _x0, uint16_t _y0, uint16
         graphics_draw_pixel(gfx, x0, y0, true);
         if (x0 == x1 && y0 == y1) break;
         if (x_major) {
-            x0 += step_x;
-            error += 2*dy;
             if (error > 0) {
                 y0 += step_y;
                 error -= 2*dx;
             }
+            x0 += step_x;
+            error += 2*dy;
         } else {
-            y0 += step_y;
-            error += 2*dx;
             if (error > 0) {
                 x0 += step_x;
                 error -= 2*dy;
             }
+            y0 += step_y;
+            error += 2*dx;
         }
     }
 
