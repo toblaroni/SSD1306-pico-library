@@ -8,3 +8,4 @@ A lightweight driver for the SSD1306. Communicates over I2C.
 
 ### graphics
 A library of functions for drawing on the SSD1306. The logic is separated from the driver so technically it could be used for any other display that uses the same framebuffer memory layout as the SSD1306.
+

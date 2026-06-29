@@ -11,8 +11,10 @@ void graphics_init(graphics_t *const graphics, uint8_t *framebuff, uint16_t widt
     graphics->framebuff = framebuff;
     graphics->width = width;
     graphics->height = height;
-    graphics->stroke_on = true;
     graphics->fill_on = true;
+    graphics->fill_colour = GRAPHICS_COLOUR_WHITE;
+    graphics->stroke_on = true;
+    graphics->stroke_colour = GRAPHICS_COLOUR_WHITE;
 }
 
 
@@ -21,8 +23,25 @@ void graphics_clear(graphics_t *const gfx) {
     return;
 }
 
+void graphics_no_fill(graphics_t *const gfx) {
+    gfx->fill_on = false;
+}
 
-int graphics_draw_pixel(graphics_t *const gfx, uint16_t x, uint16_t y, bool on) {
+void graphics_fill(graphics_t *const gfx, graphics_colour_t colour) {
+    gfx->fill_colour = colour;
+    gfx->fill_on = true;
+}
+
+void graphics_no_stroke(graphics_t *const gfx) {
+    gfx->stroke_on = false;
+}
+
+void graphics_stroke(graphics_t *const gfx, graphics_colour_t colour) {
+    gfx->stroke_colour = colour;
+    gfx->stroke_on = true;
+}
+
+int graphics_draw_pixel(graphics_t *const gfx, int x, int y, bool on) {
     if (x >= gfx->width || y >= gfx->height)
         return GRAPHICS_ERROR_OUT_OF_BOUNDS;
 
@@ -38,54 +57,46 @@ int graphics_draw_pixel(graphics_t *const gfx, uint16_t x, uint16_t y, bool on) 
     return GRAPHICS_OK;
 }
 
-static void swap_uint16(uint16_t *a, uint16_t *b) {
-    uint16_t temp = *a;
+static void swap_int(int *a, int *b) {
+    int temp = *a;
     *a = *b;
     *b = temp;
 }
 
-static int draw_horizontal_line(graphics_t *const gfx, uint16_t x0, uint16_t y, uint16_t x1) {
+static void draw_horizontal_line(graphics_t *const gfx, int x0, int y, int x1, graphics_colour_t colour) {
     if (x0 > x1) {
-        swap_uint16(&x0, &x1);
+        swap_int(&x0, &x1);
     }
 
     for (uint16_t x = x0; x <= x1; ++x) {
-        graphics_draw_pixel(gfx, x, y, true);
+        graphics_draw_pixel(gfx, x, y, colour);
     }
-
-    return GRAPHICS_OK;
 }
 
-static int draw_vertical_line(graphics_t *const gfx, uint16_t x, uint16_t y0, uint16_t y1) {
+static void draw_vertical_line(graphics_t *const gfx, int x, int y0, int y1, graphics_colour_t colour) {
     if (y0 > y1) {
-        swap_uint16(&y0, &y1);
+        swap_int(&y0, &y1);
     }
 
     for (uint16_t y = y0; y <= y1; ++y) {
-        graphics_draw_pixel(gfx, x, y, true);
+        graphics_draw_pixel(gfx, x, y, colour);
     }
-
-    return GRAPHICS_OK;
 }
 
 
-int graphics_draw_line(graphics_t *const gfx, uint16_t _x0, uint16_t _y0, uint16_t x1, uint16_t y1) {
-    if (_x0 >= gfx->width || x1 >= gfx->width || _y0 >= gfx->height || y1 >= gfx->height) {
-        printf(
-            "Graphics Error: Line coordinates out of bounds. x0: %u, y0: %u, x1: %u, y1: %u\n", 
-            _x0, _y0, x1, y1
-        );
-        return GRAPHICS_ERROR_OUT_OF_BOUNDS;
-    }
+int graphics_draw_line(graphics_t *const gfx, int _x0, int _y0, int x1, int y1) {
+    if (!gfx->stroke_on) return GRAPHICS_OK;     // Don't draw a line!?
    
     // Remove unisigned integers to avoid wraparound
     int x0 = (int)_x0;
     int y0 = (int)_y0;
    
     if (x0 == x1) {
-        return draw_vertical_line(gfx, x0, y0, y1);
+        draw_vertical_line(gfx, x0, y0, y1, gfx->stroke_colour);
+        return GRAPHICS_OK;
     } else if (y0 == y1) {
-        return draw_horizontal_line(gfx, x0, y0, x1);
+        draw_horizontal_line(gfx, x0, y0, x1, gfx->stroke_colour);
+        return GRAPHICS_OK;
     }
 
     // Bresenham's line algorithm
@@ -95,11 +106,11 @@ int graphics_draw_line(graphics_t *const gfx, uint16_t _x0, uint16_t _y0, uint16
     int step_x = (x1 > x0) ? 1 : -1;
     int step_y = (y1 > y0) ? 1 : -1;
     bool x_major = dx >= dy;
-    int error = x_major ? 2*dy - dx : 2*dx - dy;
+    int error = x_major ? 2 * dy - dx : 2 * dx - dy;
 
     while (1) {
         // printf("Drawing pixel at (%u, %u)\n", x0, y0);
-        graphics_draw_pixel(gfx, x0, y0, true);
+        graphics_draw_pixel(gfx, x0, y0, gfx->stroke_colour);
         if (x0 == x1 && y0 == y1) break;
         if (x_major) {
             if (error > 0) {
@@ -121,27 +132,54 @@ int graphics_draw_line(graphics_t *const gfx, uint16_t _x0, uint16_t _y0, uint16
     return GRAPHICS_OK;
 }
 
-int draw_rectangle(graphics_t *const gfx, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
+int graphics_draw_rectangle(graphics_t *const gfx, int x0, int y0, uint16_t width, uint16_t height) {
     if (gfx->fill_on) {
-        for (uint16_t y = y0; y <= y1; ++y)
-            graphics_draw_line(gfx, x0, y, x1, y);
-    } else {
-        graphics_draw_line(gfx, x0, y0, x1, y0); // Top edge
-        graphics_draw_line(gfx, x1, y0, x1, y1); // Right edge
-        graphics_draw_line(gfx, x1, y1, x0, y1); // Bottom edge
-        graphics_draw_line(gfx, x0, y1, x0, y0); // Left edge
+        for (int y = y0; y <= y0 + height; ++y) {
+            draw_horizontal_line(gfx, x0, y, x0 + width, gfx->fill_colour);
+        }
+    }  
+    
+    if (gfx->stroke_on) {
+        draw_horizontal_line(gfx, x0, y0, x0 + width, gfx->stroke_colour);
+        draw_horizontal_line(gfx, x0, y0 + height, x0 + width, gfx->stroke_colour);
+        draw_vertical_line(gfx, x0, y0, y0 + height, gfx->stroke_colour);
+        draw_vertical_line(gfx, x0 + width, y0, y0 + height, gfx->stroke_colour);
     }
+
     return GRAPHICS_OK;
 }
 
-int graphics_draw_circle(graphics_t *const gfx, uint16_t x0, uint16_t y0, uint16_t radius) {
+static void plot_circle_scanline(graphics_t *const gfx, int x0, int y0, int x, int y) {
+    draw_horizontal_line(gfx, x0 - x, y0 + y, x0 + x, gfx->fill_colour);
+    draw_horizontal_line(gfx, x0 - x, y0 - y, x0 + x, gfx->fill_colour);
+    if (x != y) {
+        draw_horizontal_line(gfx, x0 - y, y0 + x, x0 + y, gfx->fill_colour);
+        draw_horizontal_line(gfx, x0 - y, y0 - x, x0 + y, gfx->fill_colour);
+    }
+}
+
+static void plot_circle_points(graphics_t *const gfx, int x0, int y0, int x, int y) {
+    graphics_draw_pixel(gfx, x0 + x, y0 + y, gfx->stroke_colour);
+    graphics_draw_pixel(gfx, x0 - x, y0 + y, gfx->stroke_colour);
+    graphics_draw_pixel(gfx, x0 + x, y0 - y, gfx->stroke_colour);
+    graphics_draw_pixel(gfx, x0 - x, y0 - y, gfx->stroke_colour);
+    if (x != y) {
+        graphics_draw_pixel(gfx, x0 + y, y0 + x, gfx->stroke_colour);
+        graphics_draw_pixel(gfx, x0 - y, y0 + x, gfx->stroke_colour);
+        graphics_draw_pixel(gfx, x0 + y, y0 - x, gfx->stroke_colour);
+        graphics_draw_pixel(gfx, x0 - y, y0 - x, gfx->stroke_colour);
+    }
+
+}
+
+int graphics_draw_circle(graphics_t *const gfx, int x0, int y0, uint16_t radius) {
     if (x0 >= gfx->width || y0 >= gfx->height) {
         printf(
             "Graphics Error: Circle coordinates out of bounds. x0: %u, y0: %u, radius: %u\n", 
             x0, y0, radius
         );
         return GRAPHICS_ERROR_OUT_OF_BOUNDS;
-    }
+    } else if (!gfx->fill_on && !gfx->stroke_on) return GRAPHICS_OK;
 
     // Midpoint circle algorithm
     // https://www.geeksforgeeks.org/dsa/mid-point-circle-drawing-algorithm/
@@ -152,16 +190,11 @@ int graphics_draw_circle(graphics_t *const gfx, uint16_t x0, uint16_t y0, uint16
     int P = 1-radius;
     while (x >= y) {
         // Draw the points in all octants
-        graphics_draw_pixel(gfx, x0 + x, y0 + y, true);
-        graphics_draw_pixel(gfx, x0 - x, y0 + y, true);
-        graphics_draw_pixel(gfx, x0 + x, y0 - y, true);
-        graphics_draw_pixel(gfx, x0 - x, y0 - y, true);
-        if (x != y) {
-            graphics_draw_pixel(gfx, x0 + y, y0 + x, true);
-            graphics_draw_pixel(gfx, x0 - y, y0 + x, true);
-            graphics_draw_pixel(gfx, x0 + y, y0 - x, true);
-            graphics_draw_pixel(gfx, x0 - y, y0 - x, true);
-        }
+        if (gfx->fill_on)
+            plot_circle_scanline(gfx, x0, y0, x, y);
+
+        if (gfx->stroke_on)
+            plot_circle_points(gfx, x0, y0, x, y);
 
         y++;
 
@@ -178,7 +211,11 @@ int graphics_draw_circle(graphics_t *const gfx, uint16_t x0, uint16_t y0, uint16
     return GRAPHICS_OK;
 }
 
-int graphics_draw_triangle(graphics_t *const gfx, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+int graphics_draw_ellipse(graphics_t *const graphics, int x0, int y0, uint16_t radius_x, int16_t radius_y) {
+    return GRAPHICS_OK;
+}
+
+int graphics_draw_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1, int x2, int y2) {
     // Draw triangle
     return GRAPHICS_OK;
 }

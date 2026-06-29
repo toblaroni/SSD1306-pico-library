@@ -36,34 +36,30 @@ int main() {
 
     graphics_init(&gfx, screen.framebuff, screen.width, screen.height);
     graphics_clear(&gfx);
-    /*
-    // Horizontal and vertical
-    graphics_draw_line(&gfx, 0, screen.height/2, screen.width - 1, screen.height / 2);
-    graphics_draw_line(&gfx, screen.width / 2, 0, screen.width / 2, screen.height - 1);
-    // Diagonals
-    printf("Drawing diagonal lines...\n");
-    graphics_draw_line(&gfx, 0, 0, screen.width - 1, screen.height - 1);
-    graphics_draw_line(&gfx, 0, screen.height - 1, screen.width - 1, 0);
-    // Steep lines
-    printf("Drawing steep lines...\n");
-    graphics_draw_line(&gfx, screen.width/4, 0, screen.width*3/4, screen.height - 1);
-    graphics_draw_line(&gfx, screen.width*3/4, 0, screen.width/4, screen.height - 1);
-    // Shallow lines
-    printf("Drawing shallow lines...\n");
-    graphics_draw_line(&gfx, 0, screen.height/4, screen.width - 1, screen.height*3/4);
-    graphics_draw_line(&gfx, 0, screen.height*3/4, screen.width - 1, screen.height/4);
-    */
-    // drawing circles
-    printf("Drawing circles...\n");
-    graphics_draw_circle(&gfx, screen.width/2, screen.height/2, 0);
-    graphics_draw_circle(&gfx, screen.width/2, screen.height/2, 10);
-    graphics_draw_circle(&gfx, screen.width/2, screen.height/2, 20);
-    graphics_draw_circle(&gfx, screen.width/2, screen.height/2, 30);
-    graphics_draw_circle(&gfx, screen.width/2, screen.height/2, 40);
-    graphics_draw_circle(&gfx, screen.width/2, screen.height/2, 50);
+    
+    int stroke_width = 2;
+    int x = 0, y = 0;
+
+    graphics_no_stroke(&gfx);
+    for (
+        int w = screen.width-1, h = screen.height-1; 
+        w > 0 && h > 0; 
+        w -= stroke_width*2, h -= stroke_width*2
+    ) {
+        graphics_draw_rectangle(&gfx, x, y, w, h);
+
+        graphics_fill(&gfx, gfx.fill_colour);
+        gfx.fill_colour = gfx.fill_colour == GRAPHICS_COLOUR_WHITE ? GRAPHICS_COLOUR_BLACK : GRAPHICS_COLOUR_WHITE;
+
+        x += stroke_width;
+        y += stroke_width;
+
+    }
+    
     SSD1306_update(&screen);
 
     uint32_t frame_count = 0;
+
     while(1) {
         frame_count++;
     }
