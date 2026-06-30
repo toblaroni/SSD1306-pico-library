@@ -63,13 +63,40 @@ static void swap_int(int *a, int *b) {
     *b = temp;
 }
 
+
+// Faster than calling draw_pixel since the value of y doesn't change.
 static void draw_horizontal_line(graphics_t *const gfx, int x0, int y, int x1, graphics_colour_t colour) {
-    if (x0 > x1) {
-        swap_int(&x0, &x1);
+    if (y < 0 || y >= gfx->height) {
+        printf(
+            "Graphics Error: Horizontal line out of bounds. x0: %i, x1: %i, y: %i\n", 
+            x0, x1, y
+        );
+        return;
     }
 
-    for (uint16_t x = x0; x <= x1; ++x) {
-        graphics_draw_pixel(gfx, x, y, colour);
+    if (x0 > x1)
+        swap_int(&x0, &x1);
+    
+    if (x1 < 0 || x0 >= gfx->width) {
+        printf(
+            "Graphics Error: Horizontal line out of bounds. x0: %i, x1: %i, y: %i\n", 
+            x0, x1, y
+        );
+        return;
+    }
+    
+    // Clipping
+    if (x0 < 0)
+        x0 = 0;
+    if (x1 >= gfx->width)
+        x1 = gfx->width - 1;       
+
+    uint8_t bit_pos = y % 8;
+    uint8_t page = y / 8;
+    int byte_index = gfx->width * page + x0;
+
+    for (int i = 0; i < x1 - x0; ++i) {
+        gfx->framebuff[byte_index + i] |= (1 << bit_pos);       
     }
 }
 
@@ -173,13 +200,7 @@ static void plot_circle_points(graphics_t *const gfx, int x0, int y0, int x, int
 }
 
 int graphics_draw_circle(graphics_t *const gfx, int x0, int y0, uint16_t radius) {
-    if (x0 >= gfx->width || y0 >= gfx->height) {
-        printf(
-            "Graphics Error: Circle coordinates out of bounds. x0: %u, y0: %u, radius: %u\n", 
-            x0, y0, radius
-        );
-        return GRAPHICS_ERROR_OUT_OF_BOUNDS;
-    } else if (!gfx->fill_on && !gfx->stroke_on) return GRAPHICS_OK;
+    if (!gfx->fill_on && !gfx->stroke_on) return GRAPHICS_OK;
 
     // Midpoint circle algorithm
     // https://www.geeksforgeeks.org/dsa/mid-point-circle-drawing-algorithm/
@@ -211,11 +232,32 @@ int graphics_draw_circle(graphics_t *const gfx, int x0, int y0, uint16_t radius)
     return GRAPHICS_OK;
 }
 
-int graphics_draw_ellipse(graphics_t *const graphics, int x0, int y0, uint16_t radius_x, int16_t radius_y) {
+int graphics_draw_ellipse(graphics_t *const gfx, int x0, int y0, uint16_t radius_x, int16_t radius_y) {
+    if (!gfx->fill_on && !gfx->stroke_on) 
+        return GRAPHICS_OK;
+
+    
+
     return GRAPHICS_OK;
 }
 
+void fill_bottom_flat_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1, int x2, int y2) {
+
+}
+
 int graphics_draw_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1, int x2, int y2) {
+
+    // https://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
+    if (gfx->fill_on) {
+
+    }
+
     // Draw triangle
+    if (gfx->stroke_on) {   // This is actually handled by draw line...
+        graphics_draw_line(gfx, x0, y0, x1, y1);
+        graphics_draw_line(gfx, x1, y1, x2, y2);
+        graphics_draw_line(gfx, x2, y2, x0, y0);
+    }
+
     return GRAPHICS_OK;
 }

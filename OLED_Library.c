@@ -6,16 +6,11 @@
 #define GPIO_SDA 0
 #define GPIO_SCL 1
 
-typedef struct {
-    int x;
-    int y;
-} vec2_t;
-
 int main() {
 
     stdio_init_all();
     i2c_init(i2c0, 400 * 1000); 
-    sleep_ms(3000);
+    sleep_ms(500);
 
     SSD1306_t screen;
     graphics_t gfx;
@@ -37,31 +32,18 @@ int main() {
     graphics_init(&gfx, screen.framebuff, screen.width, screen.height);
     graphics_clear(&gfx);
     
-    int stroke_width = 2;
-    int x = 0, y = 0;
+    graphics_stroke(&gfx, GRAPHICS_COLOUR_WHITE);
 
-    graphics_no_stroke(&gfx);
-    for (
-        int w = screen.width-1, h = screen.height-1; 
-        w > 0 && h > 0; 
-        w -= stroke_width*2, h -= stroke_width*2
-    ) {
-        graphics_draw_rectangle(&gfx, x, y, w, h);
-
-        graphics_fill(&gfx, gfx.fill_colour);
-        gfx.fill_colour = gfx.fill_colour == GRAPHICS_COLOUR_WHITE ? GRAPHICS_COLOUR_BLACK : GRAPHICS_COLOUR_WHITE;
-
-        x += stroke_width;
-        y += stroke_width;
-
-    }
+    graphics_draw_triangle(
+        &gfx, 
+        20, 20, 
+        screen.width - 20, 20, 
+        screen.width / 2, screen.height - 20
+    );
     
     SSD1306_update(&screen);
 
-    uint32_t frame_count = 0;
-
     while(1) {
-        frame_count++;
     }
 
     return 0;
