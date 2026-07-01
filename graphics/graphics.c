@@ -7,6 +7,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef struct {
+    int x;
+    int y;
+} vertex_t;
+
 void graphics_init(graphics_t *const graphics, uint8_t *framebuff, uint16_t width, uint16_t height) {
     graphics->framebuff = framebuff;
     graphics->width = width;
@@ -241,15 +246,40 @@ int graphics_draw_ellipse(graphics_t *const gfx, int x0, int y0, uint16_t radius
     return GRAPHICS_OK;
 }
 
+void swap_vertex(vertex_t *v0, vertex_t *v1) {
+    vertex_t tmp = *v0;
+    *v0 = *v1;
+    *v1 = tmp;
+    return;
+}
+
+void sort_tri_vertices_by_y(vertex_t v0, vertex_t v1,  vertex_t v2) {
+    if (v0.y > v1.y)
+        swap_vertex(&v0, &v1);
+
+    if (v1.y > v2.y)
+        swap_vertex(&v1, &v2);
+
+    if (v0.y > v1.y) {
+        swap_vertex(&v0, &v1);
+    }
+
+    return;
+}
+
 void fill_bottom_flat_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1, int x2, int y2) {
 
 }
 
 int graphics_draw_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1, int x2, int y2) {
+    vertex_t v0 = {x0, y0};
+    vertex_t v1 = {x1, y1};
+    vertex_t v2 = {x2, y2};
+    sort_tri_vertices_by_y(v0, v1, v2);
 
     // https://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
     if (gfx->fill_on) {
-
+        
     }
 
     // Draw triangle
