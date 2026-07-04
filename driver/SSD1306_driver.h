@@ -30,6 +30,7 @@ int SSD1306_update(SSD1306_t *const screen);
 int SSD1306_on(SSD1306_t *const screen);
 int SSD1306_off(SSD1306_t *const screen);
 int SSD1306_invert(SSD1306_t *const screen, bool invert);
+int SSD1306_set_contrast(SSD1306_t *const screen, uint8_t contrast);
 
 // TODO: Add functions for scrolling, dimming, etc.
 #endif

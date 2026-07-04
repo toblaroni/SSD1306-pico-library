@@ -271,13 +271,13 @@ void fill_bottom_flat_triangle(graphics_t *const gfx, int x0, int y0, int x1, in
 
 }
 
+// https://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
 int graphics_draw_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1, int x2, int y2) {
     vertex_t v0 = {x0, y0};
     vertex_t v1 = {x1, y1};
     vertex_t v2 = {x2, y2};
     sort_tri_vertices_by_y(v0, v1, v2);
 
-    // https://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
     if (gfx->fill_on) {
         
     }
