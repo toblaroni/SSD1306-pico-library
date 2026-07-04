@@ -199,3 +199,8 @@ int SSD1306_off(SSD1306_t *const screen) {
 int SSD1306_invert(SSD1306_t *const screen, bool invert) {
     return SSD1306_send_cmd(screen, invert ? SET_INV_DISP : SET_NORM_DISP);
 }
+
+int SSD1306_set_contrast(SSD1306_t *const screen, uint8_t contrast) {
+    uint8_t cmds[] = { SET_CONTRAST_CTRL, contrast };
+    return SSD1306_send_cmd_stream(screen, cmds, sizeof(cmds));
+}

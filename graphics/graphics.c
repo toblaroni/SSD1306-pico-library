@@ -269,6 +269,12 @@ void sort_tri_vertices_by_y(vertex_t v0, vertex_t v1,  vertex_t v2) {
 
 void fill_bottom_flat_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1, int x2, int y2) {
 
+    return;
+}
+
+void fill_top_flat_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1, int x2, int y2) {
+
+    return;
 }
 
 // https://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
@@ -279,7 +285,7 @@ int graphics_draw_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1
     sort_tri_vertices_by_y(v0, v1, v2);
 
     if (gfx->fill_on) {
-        
+            
     }
 
     // Draw triangle
