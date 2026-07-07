@@ -55,6 +55,9 @@
 - [ ] Polygon
 - [ ] Ellipse
 
+### Rendering 
+- [ ] Stroke Width
+
 ### Text
 - [ ] Bitmap font support
 - [ ] Character rendering

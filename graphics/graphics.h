@@ -28,9 +28,9 @@ void graphics_init(graphics_t *const graphics, uint8_t *framebuff, uint16_t widt
 void graphics_clear(graphics_t *const graphics);
 int graphics_draw_pixel(graphics_t *const graphics, int x, int y, bool on);
 int graphics_draw_line(graphics_t *const graphics, int x0, int y0, int x1, int y1);
-int graphics_draw_rectangle(graphics_t *const graphics, int x0, int y0, uint16_t w, uint16_t h);
-int graphics_draw_circle(graphics_t *const graphics, int x0, int y0, uint16_t radius);
-int graphics_draw_ellipse(graphics_t *const graphics, int x0, int y0, uint16_t radius_x, int16_t radius_y);
+int graphics_draw_rectangle(graphics_t *const graphics, int x0, int y0, int w, int h);
+int graphics_draw_circle(graphics_t *const graphics, int x0, int y0, int radius);
+int graphics_draw_ellipse(graphics_t *const graphics, int x0, int y0, int radius_x, int radius_y);
 int graphics_draw_triangle(graphics_t *const graphics, int x0, int y0, int x1, int y1, int x2, int y2);
 void graphics_no_fill(graphics_t *const graphics);
 void graphics_fill(graphics_t *const graphics, graphics_colour_t);

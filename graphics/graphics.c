@@ -71,13 +71,8 @@ static void swap_int(int *a, int *b) {
 
 // Faster than calling draw_pixel since the value of y doesn't change.
 static void draw_horizontal_line(graphics_t *const gfx, int x0, int y, int x1, graphics_colour_t colour) {
-    if (y < 0 || y >= gfx->height) {
-        printf(
-            "Graphics Error: Horizontal line out of bounds. x0: %i, x1: %i, y: %i\n", 
-            x0, x1, y
-        );
+    if (y < 0 || y >= gfx->height)
         return;
-    }
 
     if (x0 > x1)
         swap_int(&x0, &x1);
@@ -113,7 +108,7 @@ static void draw_vertical_line(graphics_t *const gfx, int x, int y0, int y1, gra
         swap_int(&y0, &y1);
     }
 
-    for (uint16_t y = y0; y <= y1; ++y) {
+    for (int y = y0; y <= y1; ++y) {
         graphics_draw_pixel(gfx, x, y, colour);
     }
 }
@@ -164,14 +159,14 @@ int graphics_draw_line(graphics_t *const gfx, int x0, int y0, int x1, int y1) {
     return GRAPHICS_OK;
 }
 
-int graphics_draw_rectangle(graphics_t *const gfx, int x0, int y0, uint16_t width, uint16_t height) {
+int graphics_draw_rectangle(graphics_t *const gfx, int x0, int y0, int width, int height) {
     if (gfx->fill_on) {
         for (int y = y0; y <= y0 + height; ++y) {
             draw_horizontal_line(gfx, x0, y, x0 + width, gfx->fill_colour);
         }
     }  
     
-    if (gfx->stroke_on && gfx->stroke_colour != gfx->fill_colour) {
+    if (gfx->stroke_on) {
         draw_horizontal_line(gfx, x0, y0, x0 + width, gfx->stroke_colour);
         draw_horizontal_line(gfx, x0, y0 + height, x0 + width, gfx->stroke_colour);
         draw_vertical_line(gfx, x0, y0, y0 + height, gfx->stroke_colour);
@@ -204,7 +199,7 @@ static void plot_circle_points(graphics_t *const gfx, int x0, int y0, int x, int
 
 }
 
-int graphics_draw_circle(graphics_t *const gfx, int x0, int y0, uint16_t radius) {
+int graphics_draw_circle(graphics_t *const gfx, int x0, int y0, int radius) {
     if (!gfx->fill_on && !gfx->stroke_on) return GRAPHICS_OK;
 
     // Midpoint circle algorithm
@@ -219,7 +214,7 @@ int graphics_draw_circle(graphics_t *const gfx, int x0, int y0, uint16_t radius)
         if (gfx->fill_on)
             plot_circle_scanline(gfx, x0, y0, x, y);
 
-        if (gfx->stroke_on && gfx->stroke_colour != gfx->fill_colour)
+        if (gfx->stroke_on)
             plot_circle_points(gfx, x0, y0, x, y);
 
         y++;
@@ -237,50 +232,47 @@ int graphics_draw_circle(graphics_t *const gfx, int x0, int y0, uint16_t radius)
     return GRAPHICS_OK;
 }
 
-int graphics_draw_ellipse(graphics_t *const gfx, int x0, int y0, uint16_t radius_x, int16_t radius_y) {
+int graphics_draw_ellipse(graphics_t *const gfx, int x0, int y0, int radius_x, int radius_y) {
     if (!gfx->fill_on && !gfx->stroke_on) 
         return GRAPHICS_OK;
 
     return GRAPHICS_OK;
 }
 
-void swap_vertex(vertex_t *v0, vertex_t *v1) {
+static void swap_vertex(vertex_t *v0, vertex_t *v1) {
     vertex_t tmp = *v0;
     *v0 = *v1;
     *v1 = tmp;
     return;
 }
 
-void sort_tri_vertices_by_y(vertex_t v0, vertex_t v1,  vertex_t v2) {
+static bool points_equal(vertex_t a, vertex_t b) {
+    return a.x == b.x && a.y == b.y
+}
+
+static void sort_tri_vertices_by_y(vertex_t v0, vertex_t v1,  vertex_t v2) {
     if (v0.y > v1.y)
         swap_vertex(&v0, &v1);
 
     if (v1.y > v2.y)
         swap_vertex(&v1, &v2);
 
-    if (v0.y > v1.y) {
+    if (v0.y > v1.y)
         swap_vertex(&v0, &v1);
-    }
 
     return;
 }
 
-void fill_bottom_flat_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1, int x2, int y2) {
-    int dx_1 = abs(x1 - x0);
-    int dy_1 = abs(y1 - y0);
-    int dx_2 = abs(x2 - x0);
-    int dy_2 = abs(y2 - y0);
-
-
+static void fill_bottom_flat_triangle(graphics_t *const gfx, vertex_t v0, vertex_t v1, vertex_t v2) {
     return;
 }
 
-void fill_top_flat_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1, int x2, int y2) {
-
+static void fill_top_flat_triangle(graphics_t *const gfx, vertex_t v0, vertex_t v1, vertex_t v2) {
     return;
 }
 
 // https://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
+// https://mcejp.github.io/2020/11/06/bresenham.html
 int graphics_draw_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1, int x2, int y2) {
     vertex_t v0 = {x0, y0};
     vertex_t v1 = {x1, y1};
@@ -288,7 +280,20 @@ int graphics_draw_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1
     sort_tri_vertices_by_y(v0, v1, v2);
 
     if (gfx->fill_on) {
-        
+        if (points_equal(v1, v2))
+            fill_bottom_flat_triangle(gfx, v0, v1, v2); 
+        else if (points_equal(v0, v1))
+            fill_top_flat_triangle(gfx, v0, v1, v2);
+        else {
+            // Split into two triangles
+            vertex_t v3 = {
+                (int)(v0.x + ((float)(v1.y - v0.y) / (float)(v2.y - v0.y)) * (v2.x - v0.x)),    // Is there a non-float way?
+                v1.y
+            };
+
+            fill_bottom_flat_triangle(gfx, v0, v1, v3);
+            fill_top_flat_triangle(gfx, v1, v3, v2);
+        }
     }
 
     // Draw triangle
