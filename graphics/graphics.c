@@ -100,8 +100,11 @@ static void draw_horizontal_line(graphics_t *const gfx, int x0, int y, int x1, g
     uint8_t page = y / 8;
     int byte_index = gfx->width * page + x0;
 
-    for (int i = 0; i < x1 - x0; ++i) {
-        gfx->framebuff[byte_index + i] |= (1 << bit_pos);       
+    for (int i = 0; i <= x1 - x0; ++i) {
+        if (colour == GRAPHICS_COLOUR_WHITE)
+            gfx->framebuff[byte_index + i] |= (1 << bit_pos);       
+        else
+            gfx->framebuff[byte_index + i] &= ~(1 << bit_pos);
     }
 }
 
@@ -116,12 +119,8 @@ static void draw_vertical_line(graphics_t *const gfx, int x, int y0, int y1, gra
 }
 
 
-int graphics_draw_line(graphics_t *const gfx, int _x0, int _y0, int x1, int y1) {
+int graphics_draw_line(graphics_t *const gfx, int x0, int y0, int x1, int y1) {
     if (!gfx->stroke_on) return GRAPHICS_OK;     // Don't draw a line!?
-   
-    // Remove unisigned integers to avoid wraparound
-    int x0 = (int)_x0;
-    int y0 = (int)_y0;
    
     if (x0 == x1) {
         draw_vertical_line(gfx, x0, y0, y1, gfx->stroke_colour);
@@ -134,6 +133,7 @@ int graphics_draw_line(graphics_t *const gfx, int _x0, int _y0, int x1, int y1) 
     // Bresenham's line algorithm
     int dx = abs((int)x1 - (int)x0);
     int dy = abs((int)y1 - (int)y0);
+
     // Negative or positive gradient
     int step_x = (x1 > x0) ? 1 : -1;
     int step_y = (y1 > y0) ? 1 : -1;
@@ -171,7 +171,7 @@ int graphics_draw_rectangle(graphics_t *const gfx, int x0, int y0, uint16_t widt
         }
     }  
     
-    if (gfx->stroke_on) {
+    if (gfx->stroke_on && gfx->stroke_colour != gfx->fill_colour) {
         draw_horizontal_line(gfx, x0, y0, x0 + width, gfx->stroke_colour);
         draw_horizontal_line(gfx, x0, y0 + height, x0 + width, gfx->stroke_colour);
         draw_vertical_line(gfx, x0, y0, y0 + height, gfx->stroke_colour);
@@ -219,7 +219,7 @@ int graphics_draw_circle(graphics_t *const gfx, int x0, int y0, uint16_t radius)
         if (gfx->fill_on)
             plot_circle_scanline(gfx, x0, y0, x, y);
 
-        if (gfx->stroke_on)
+        if (gfx->stroke_on && gfx->stroke_colour != gfx->fill_colour)
             plot_circle_points(gfx, x0, y0, x, y);
 
         y++;
@@ -240,8 +240,6 @@ int graphics_draw_circle(graphics_t *const gfx, int x0, int y0, uint16_t radius)
 int graphics_draw_ellipse(graphics_t *const gfx, int x0, int y0, uint16_t radius_x, int16_t radius_y) {
     if (!gfx->fill_on && !gfx->stroke_on) 
         return GRAPHICS_OK;
-
-    
 
     return GRAPHICS_OK;
 }
@@ -268,6 +266,11 @@ void sort_tri_vertices_by_y(vertex_t v0, vertex_t v1,  vertex_t v2) {
 }
 
 void fill_bottom_flat_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1, int x2, int y2) {
+    int dx_1 = abs(x1 - x0);
+    int dy_1 = abs(y1 - y0);
+    int dx_2 = abs(x2 - x0);
+    int dy_2 = abs(y2 - y0);
+
 
     return;
 }
@@ -285,11 +288,11 @@ int graphics_draw_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1
     sort_tri_vertices_by_y(v0, v1, v2);
 
     if (gfx->fill_on) {
-            
+        
     }
 
     // Draw triangle
-    if (gfx->stroke_on) {   // This is actually handled by draw line...
+    if (gfx->stroke_on && gfx->stroke_colour != gfx->fill_colour) {   // This is actually handled by draw line...
         graphics_draw_line(gfx, x0, y0, x1, y1);
         graphics_draw_line(gfx, x1, y1, x2, y2);
         graphics_draw_line(gfx, x2, y2, x0, y0);

@@ -36,4 +36,5 @@ void graphics_no_fill(graphics_t *const graphics);
 void graphics_fill(graphics_t *const graphics, graphics_colour_t);
 void graphics_no_stroke(graphics_t *const graphics);
 void graphics_stroke(graphics_t *const graphics, graphics_colour_t);
+
 #endif

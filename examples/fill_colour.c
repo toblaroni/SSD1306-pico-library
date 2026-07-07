@@ -51,7 +51,7 @@ int main() {
 
     }
 
-    for (uint16_t i = screen.width/2; i >= 2; i -= 2) {
+    for (int i = screen.width/2; i >= 2; i -= 2) {
         graphics_draw_circle(&gfx, screen.width/2, screen.height/2, i);
 
         graphics_fill(&gfx, gfx.fill_colour);

@@ -32,15 +32,11 @@ int main() {
     graphics_init(&gfx, screen.framebuff, screen.width, screen.height);
     graphics_clear(&gfx);
     
-    graphics_stroke(&gfx, GRAPHICS_COLOUR_WHITE);
+    int stroke_width = 2;
+    int x = 0, y = 0;
 
-    graphics_draw_triangle(
-        &gfx, 
-        20, 20, 
-        screen.width - 20, 20, 
-        screen.width / 2, screen.height - 20
-    );
-    
+    graphics_no_stroke(&gfx);
+
     SSD1306_update(&screen);
 
     while(1) {

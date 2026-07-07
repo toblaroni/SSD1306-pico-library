@@ -16,7 +16,7 @@
 - [x] Clear display
 - [x] Fill display
 - [x] Display on/off
-- [ ] Contrast control
+- [x] Contrast control
 
 ### Transport Layer
 - [ ] Separate transport from driver logic
