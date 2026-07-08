@@ -31,28 +31,20 @@ int main() {
 
     graphics_init(&gfx, screen.framebuff, screen.width, screen.height);
 
-    graphics_no_fill(&gfx);
-    graphics_stroke(&gfx, GRAPHICS_COLOUR_WHITE);
+    graphics_no_stroke(&gfx);
+    graphics_fill(&gfx, GRAPHICS_COLOUR_WHITE);
+    graphics_clear(&gfx);
 
-    int w = 25;
-    int centre_x = screen.width/2;
-    int centre_y = screen.height/2;
-    int framecount = 0;
-    int circle_radius = 10;
-    float speed = 0.1f;
+    graphics_draw_triangle(
+        &gfx,
+        10, 10, 
+        10, screen.height-10,
+        screen.width-10, screen.height-10
+    );
+
+    SSD1306_update(&screen);
 
     while(1) {
-        graphics_clear(&gfx);
-
-        float angle = framecount * speed;
-
-        int x = centre_x + (int)roundf(circle_radius * cosf(angle)) - w / 2;
-        int y = centre_y + (int)roundf(circle_radius * sinf(angle)) - w / 2;
-
-        graphics_draw_rectangle(&gfx, x, y, w, w);
-
-        SSD1306_update(&screen);
-        framecount++;
     }
 
     return 0;
