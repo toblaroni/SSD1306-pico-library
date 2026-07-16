@@ -17,6 +17,7 @@ int main() {
 
     // Initialise the OLED
     int res = SSD1306_init(&screen, i2c0, OLED_ADDR, GPIO_SDA, GPIO_SCL, 128, 64);
+
     switch (res) {
         case SSD1306_OK:
             printf("Initialised successfully\n");
@@ -33,18 +34,24 @@ int main() {
 
     graphics_no_stroke(&gfx);
     graphics_fill(&gfx, GRAPHICS_COLOUR_WHITE);
-    graphics_clear(&gfx);
 
-    graphics_draw_triangle(
-        &gfx,
-        10, 10, 
-        10, screen.height-10,
-        screen.width-10, screen.height-10
-    );
-
-    SSD1306_update(&screen);
-
+    int y = screen.height / 2;
+    int framecount = 0;
     while(1) {
+        graphics_clear(&gfx);
+
+        graphics_draw_triangle(
+            &gfx,
+            screen.width/2, 10, 
+            10, y,
+            screen.width-10, y
+        );
+
+        int offset = roundf(sin(framecount * 0.1f) * 19.f);
+        y = screen.height/2 + offset;
+
+        SSD1306_update(&screen);
+        framecount++;
     }
 
     return 0;
