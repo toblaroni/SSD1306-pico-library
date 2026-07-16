@@ -300,7 +300,8 @@ static void fill_bottom_flat_triangle(graphics_t *const gfx, vertex_t v0, vertex
         }
 
         // We want X < X_right so shared pixels are only covered by one triangle
-        draw_horizontal_line(gfx, x_left, y, x_right-1, gfx->fill_colour);
+        if (x_left != x_right) 
+            draw_horizontal_line(gfx, x_left, y, x_right-1, gfx->fill_colour);
 
         error_left -= two_dx_left;
         error_right -= two_dx_right;
@@ -310,6 +311,49 @@ static void fill_bottom_flat_triangle(graphics_t *const gfx, vertex_t v0, vertex
 }
 
 static void fill_top_flat_triangle(graphics_t *const gfx, vertex_t v0, vertex_t v1, vertex_t v2) {
+    if (v0.x >= v1.x)   // we want v0 on the left
+        swap_vertex(&v0, &v1);
+
+    int dx_left = abs(v2.x - v0.x);
+    int dx_right = abs(v2.x - v1.x);
+
+    int dy = abs(v2.y - v0.y);
+
+    int error_right = dy - dx_right;
+    int error_left = dy - dx_left;
+
+    int x_left = v0.x;
+    int x_right = v1.x;
+
+    int x_step_left = v2.x > v0.x ? 1 : -1;
+    int x_step_right = v2.x > v1.x ? 1 : -1;
+
+    int two_dx_left = 2 * dx_left;
+    int two_dx_right = 2 * dx_right;
+    int two_dy = 2 * dy;
+    
+    for (int y = v0.y; y < v2.y; y++) {
+        while (error_left < 0) {
+            x_left += x_step_left;
+            error_left += two_dy;
+        }
+
+        while (error_right < 0) {
+            x_right += x_step_right;
+            error_right += two_dy;
+        }
+
+        // We want X < X_right so shared pixels are only covered by one triangle
+        if (x_left != x_right) 
+            draw_horizontal_line(gfx, x_left, y, x_right-1, gfx->fill_colour);
+
+        error_left -= two_dx_left;
+        error_right -= two_dx_right;
+    }
+
+    // Draw Apex Pixel
+    graphics_draw_pixel(gfx, v2.x, v2.y, gfx->fill_colour);
+
     return;
 }
 

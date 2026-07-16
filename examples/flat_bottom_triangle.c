@@ -1,3 +1,4 @@
+
 #include <math.h>
 #include "driver/SSD1306_driver.h"
 #include "graphics/graphics.h"
@@ -35,12 +36,6 @@ int main() {
     graphics_no_stroke(&gfx);
     graphics_fill(&gfx, GRAPHICS_COLOUR_WHITE);
 
-    // Debug
-    // graphics_clear(&gfx);
-    // graphics_draw_circle(&gfx, screen.width/2, screen.height/2, 30);
-    // SSD1306_update(&screen);
-    // sleep_ms(750);
-
     int y = screen.height / 2;
     int framecount = 0;
     while(1) {
@@ -48,12 +43,12 @@ int main() {
 
         graphics_draw_triangle(
             &gfx,
-            screen.width/2, screen.height-10, 
+            screen.width/2, 10, 
             10, y,
             screen.width-10, y
         );
 
-        int offset = roundf(sin(framecount * 0.1f) * 20.f);
+        int offset = roundf(sin(framecount * 0.1f) * 19.f);
         y = screen.height/2 + offset;
 
         SSD1306_update(&screen);
