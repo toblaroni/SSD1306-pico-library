@@ -25,7 +25,7 @@ int main() {
     while (true)
     {
         graphics_clear(&gfx);
-        graphics_draw_char(&gfx, 'A', screen.width/2, screen.height/2);
+        graphics_draw_char(&gfx, '!', 0, 0);
         SSD1306_update(&screen);
         framecount++;
     }

@@ -67,15 +67,15 @@ target_link_libraries(graphics
     pico_stdlib
 )
 
-add_library(determination
-    graphics/fonts/determination.c
+add_library(bitfont
+    graphics/fonts/bitfont.c
 )
 
-target_include_directories(determination PUBLIC
+target_include_directories(bitfont PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/graphics/fonts
 )
 
-target_link_libraries(determination
+target_link_libraries(bitfont
     pico_stdlib
 )
 
