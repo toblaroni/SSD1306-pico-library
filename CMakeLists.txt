@@ -90,7 +90,7 @@ target_include_directories(font PUBLIC
 target_link_libraries(font
     pico_stdlib
     graphics
-    determination
+    bitfont
 )
 
 target_link_libraries(driver
