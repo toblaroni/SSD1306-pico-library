@@ -16,10 +16,14 @@ void graphics_init(graphics_t *const graphics, uint8_t *framebuff, uint16_t widt
     graphics->framebuff = framebuff;
     graphics->width = width;
     graphics->height = height;
+
     graphics->fill_on = true;
     graphics->fill_colour = GRAPHICS_COLOUR_WHITE;
     graphics->stroke_on = true;
     graphics->stroke_colour = GRAPHICS_COLOUR_WHITE;
+
+    graphics->char_spacing = 1;
+    graphics->line_height = 1;
 }
 
 
@@ -44,6 +48,14 @@ void graphics_no_stroke(graphics_t *const gfx) {
 void graphics_stroke(graphics_t *const gfx, graphics_colour_t colour) {
     gfx->stroke_colour = colour;
     gfx->stroke_on = true;
+}
+
+void graphics_set_c_spacing(graphics_t *const gfx, int value) {
+    gfx->char_spacing = value;
+}
+
+void graphics_set_line_h(graphics_t *const gfx, int value) {
+    gfx->line_height = value;
 }
 
 int graphics_draw_pixel(graphics_t *const gfx, int x, int y, bool on) {
