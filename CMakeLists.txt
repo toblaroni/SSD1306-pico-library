@@ -67,30 +67,28 @@ target_link_libraries(graphics
     pico_stdlib
 )
 
-add_library(bitfont
-    graphics/fonts/bitfont.c
+add_library(hello_world_font
+    graphics/fonts/hello_world_font.c
 )
 
-target_include_directories(bitfont PUBLIC
+target_include_directories(hello_world_font PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/graphics/fonts
 )
 
-target_link_libraries(bitfont
+target_link_libraries(hello_world_font
     pico_stdlib
 )
 
-add_library(font
-    graphics/font.c
+add_library(custom_font
+    graphics/fonts/custom_font.c
 )
 
-target_include_directories(font PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR}/graphics
+target_include_directories(custom_font PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/graphics/fonts
 )
 
-target_link_libraries(font
+target_link_libraries(custom_font
     pico_stdlib
-    graphics
-    bitfont
 )
 
 target_link_libraries(driver
@@ -101,7 +99,8 @@ target_link_libraries(driver
 target_link_libraries(OLED_Library
     driver
     graphics
-    font
+    custom_font
+    hello_world_font
 )
 
 # Add the standard include files to the build

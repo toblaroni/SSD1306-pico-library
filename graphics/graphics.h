@@ -6,14 +6,28 @@
 #include <stdint.h>
 #include <pico/stdlib.h>
 
+#define GRAPHICS_OK 0
+#define GRAPHICS_ERROR_OUT_OF_BOUNDS -1
+#define GRAPHICS_ERROR_INVALID_ARGUMENT -2
+#define GRAPHICS_ERROR_NO_FONT -3
+
 typedef enum {
     GRAPHICS_COLOUR_BLACK = 0,
     GRAPHICS_COLOUR_WHITE = 1
 } graphics_colour_t;
 
-#define GRAPHICS_OK 0
-#define GRAPHICS_ERROR_OUT_OF_BOUNDS -1
-#define GRAPHICS_INVALID_ARGUMENT -2
+
+typedef struct {
+    int first_char;
+    int last_char;
+    int char_width;
+    int char_height;
+    int bytes_per_col;
+    int char_spacing;
+    int line_height;
+    const uint8_t *data;
+} font_t;
+
 
 typedef struct {
     uint8_t *framebuff;
@@ -26,9 +40,7 @@ typedef struct {
     graphics_colour_t fill_colour;
     graphics_colour_t stroke_colour;
 
-    // Font
-    int char_spacing;
-    int line_height
+    font_t *font;
 } graphics_t;
 
 void graphics_init(graphics_t *const graphics, uint8_t *framebuff, uint16_t width, uint16_t height);
@@ -46,8 +58,12 @@ void graphics_fill(graphics_t *const graphics, graphics_colour_t);
 void graphics_no_stroke(graphics_t *const graphics);
 void graphics_stroke(graphics_t *const graphics, graphics_colour_t);
 
+void graphics_set_font(graphics_t *const graphics, font_t *const font);
 void graphics_set_c_spacing(graphics_t *const graphics, int);
 void graphics_set_line_h(graphics_t *const graphics, int);
+
+int graphics_draw_char(graphics_t *const gfx, char c, int x, int y);
+int graphics_draw_text(graphics_t *const gfx, const char *c, size_t length, int x1, int y1, int x2, int y2);
 
 // TODO Polygon
 // int graphics_draw_poly();

@@ -59,15 +59,12 @@
 - [ ] Stroke Width
 
 ### Text
-- [ ] Bitmap font support
-- [ ] Character rendering
-- [ ] String rendering
-- [ ] Text alignment helpers
-
-### Utility
-- [ ] Clipping
-- [ ] Viewport support
-- [ ] Basic colour abstraction (future-proof for non-monochrome displays)
+- [x] Bitmap font support
+- [x] Character rendering
+- [x] String rendering
+- [x] Support for multiple fonts
+- [ ] Allow user to specify font size (font scaling)
+- [ ] Text Alignment
 
 ---
 
