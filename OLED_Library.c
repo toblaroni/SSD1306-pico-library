@@ -33,7 +33,8 @@ int main() {
         .last_char = CUSTOM_FONT_LAST_CHAR,
         .line_height = 1,
         .char_spacing = 1,
-        .data = custom_font_data
+        .data = custom_font_data,
+        .proportional = true
     };
 
     font_t hello_world_font = {

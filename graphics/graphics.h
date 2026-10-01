@@ -25,6 +25,7 @@ typedef struct {
     int bytes_per_col;
     int char_spacing;
     int line_height;
+    bool proportional;      // Skip empty columns in the bitmap (trim each glyph)
     const uint8_t *data;
 } font_t;
 
@@ -61,8 +62,8 @@ void graphics_stroke(graphics_t *const graphics, graphics_colour_t);
 void graphics_set_font(graphics_t *const graphics, font_t *const font);
 void graphics_set_c_spacing(graphics_t *const graphics, int);
 void graphics_set_line_h(graphics_t *const graphics, int);
+void graphics_set_font_proportional(graphics_t *const graphics, bool);
 
-int graphics_draw_char(graphics_t *const gfx, char c, int x, int y);
 int graphics_draw_text(graphics_t *const gfx, const char *c, size_t length, int x1, int y1, int x2, int y2);
 
 // TODO Polygon

@@ -64,6 +64,10 @@ void graphics_set_line_h(graphics_t *const gfx, int value) {
     gfx->font->line_height = value;
 }
 
+void graphics_set_font_proportional(graphics_t *const gfx, bool b) {
+    gfx->font->proportional = b;
+}
+
 
 // === 2D Drawing ===
 int graphics_draw_pixel(graphics_t *const gfx, int x, int y, bool on) {
@@ -423,7 +427,51 @@ int graphics_draw_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1
 
 
 // === TEXT DRAWING ===
-int graphics_draw_char(graphics_t *const gfx, char c, int x, int y) {
+static bool col_is_empty(graphics_t *const gfx, int col, const uint8_t *glyph) {
+    const uint8_t *col_byte = &glyph[col * gfx->font->bytes_per_col];
+
+    for (int i = 0; i < gfx->font->bytes_per_col; i++) {
+        if (col_byte[i] != 0x00) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static int get_char_width(graphics_t *const gfx, char c, int *first_col) {
+    if (c == ' ' || !gfx->font->proportional) {
+        return gfx->font->char_width;
+    }
+
+    size_t glyph_index = c - gfx->font->first_char;
+    size_t bytes_per_glyph = gfx->font->bytes_per_col * gfx->font->char_width;
+    const uint8_t *glyph = &gfx->font->data[glyph_index * bytes_per_glyph];
+
+    *first_col = 0;
+    int last_col = gfx->font->char_width - 1;
+
+    // Trim left side
+    while (col_is_empty(gfx, *first_col, glyph) && *first_col < last_col) {
+        (*first_col)++;
+    }
+
+    // Trim right side
+    while (col_is_empty(gfx, last_col, glyph) && last_col >= *first_col) {
+        last_col--;
+    }
+
+    return last_col - *first_col + 1;
+}
+
+static int graphics_draw_char(
+    graphics_t *const gfx, 
+    char c, 
+    int char_width, 
+    int first_col, 
+    int x, 
+    int y
+) {
     if (gfx->font == NULL) {
         printf("Graphics Error: Attempted to draw text with no font set.\n");
         return GRAPHICS_ERROR_NO_FONT;
@@ -435,9 +483,10 @@ int graphics_draw_char(graphics_t *const gfx, char c, int x, int y) {
     size_t bytes_per_glyph = gfx->font->bytes_per_col * gfx->font->char_width;
     const uint8_t *glyph = &gfx->font->data[glyph_index * bytes_per_glyph];
     
-    for (int col = 0; col < gfx->font->char_width; col++) {
+    for (int col = 0; col < char_width; col++) {
         for (int row = 0; row < gfx->font->char_height; row++) {
-            uint8_t byte = glyph[gfx->font->bytes_per_col * col + row/8]; 
+            uint8_t byte = glyph[gfx->font->bytes_per_col * (col + first_col) + row/8]; 
+            
             
             if (byte & (1 << (row % 8))) {
                 graphics_draw_pixel(
@@ -456,22 +505,29 @@ int graphics_draw_char(graphics_t *const gfx, char c, int x, int y) {
 // graphics_draw_pixel() handles clipping if x1, x2, y1 or y2 are out of bounds.
 int graphics_draw_text(
     graphics_t *const gfx, 
-    const char *c, 
+    const char *string, 
     size_t length, 
     int x1, 
     int y1, 
     int x2, 
     int y2
 ) {
-    if (x2 < x1 || y2 < y1) {
+    if (gfx->font == NULL) {
+        printf("Graphics Error: Attempted to draw text with no font set.\n");
+        return GRAPHICS_ERROR_NO_FONT;
+    } else if (x2 < x1 || y2 < y1) {
         return GRAPHICS_ERROR_INVALID_ARGUMENT;
     } 
 
     int x = x1;
     int y = y1;
     for (size_t i = 0; i < length; i++) {
+        // TODO: Make a glyph struct to keep track of this glyph data....
+        int first_col;
+        int char_width = get_char_width(gfx, string[i], &first_col);
+
         // Move the cursor along. Wrap if necessary.
-        if (x + gfx->font->char_width > x2) {
+        if (x + char_width > x2) {
             x = x1;
             y += gfx->font->char_height + gfx->font->line_height;
         }
@@ -480,9 +536,12 @@ int graphics_draw_text(
         }
 
         // Draw each character
-        graphics_draw_char(gfx, c[i], x, y);
+        int res = graphics_draw_char(gfx, string[i], char_width, first_col, x, y);
+         if (res < 0) {
+            return res;
+         }
 
-        x += gfx->font->char_width + gfx->font->char_spacing;
+        x += char_width + gfx->font->char_spacing;
 
     }
 
