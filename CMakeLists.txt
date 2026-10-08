@@ -67,6 +67,14 @@ target_link_libraries(graphics
     pico_stdlib
 )
 
+add_library(graphics_math
+    graphics/graphics_math.c
+)
+
+target_include_directories(graphics_math PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/graphics
+)
+
 add_library(hello_world_font
     graphics/fonts/hello_world_font.c
 )
@@ -101,6 +109,7 @@ target_link_libraries(OLED_Library
     graphics
     custom_font
     hello_world_font
+    graphics_math
 )
 
 # Add the standard include files to the build

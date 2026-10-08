@@ -63,6 +63,7 @@
 - [x] Character rendering
 - [x] String rendering
 - [x] Support for multiple fonts
+- [ ] Proportional Character rendering (Trimming the glyphs of preceeding or trailing whitespace)
 - [ ] Allow user to specify font size (font scaling)
 - [ ] Text Alignment
 
