@@ -18,7 +18,7 @@ typedef struct {
     int nFaces;
 } Mesh_t;
 
-int parse_obj(char* file_path, Mesh_t* m);
+int parse_obj(const char* file_path, Mesh_t* m);
 int free_obj(Mesh_t* m);
 
 #endif

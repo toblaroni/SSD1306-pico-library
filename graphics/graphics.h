@@ -7,9 +7,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-// Contains Vec3f_t
-#include "graphics_math.h"
-
 #define GRAPHICS_OK 0
 #define GRAPHICS_ERROR_OUT_OF_BOUNDS -1
 #define GRAPHICS_ERROR_INVALID_ARGUMENT -2
@@ -20,11 +17,6 @@ typedef enum {
     GRAPHICS_COLOUR_WHITE = 1
 } graphics_colour_t;
 
-typedef struct {
-    Vec3f_t p0;
-    Vec3f_t p1;
-    Vec3f_t p2;
-} Triangle_t;
 
 typedef struct {
     int first_char;
@@ -77,5 +69,7 @@ int graphics_draw_text(graphics_t *const gfx, const char *c, size_t length, int 
 
 // TODO Polygon
 // int graphics_draw_poly();
+
+int graphics_render(graphics_t *const gfx, const char* mesh_file);
 
 #endif

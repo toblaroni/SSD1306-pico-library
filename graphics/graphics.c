@@ -1,16 +1,13 @@
 /*
- * Basic 2D Graphics functions.
+ * Contains All Graphics functions.
  */
-
-#include "graphics.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct {
-    int x;
-    int y;
-} vertex_t;
+#include "graphics.h"
+#include "graphics_math.h"
+#include "obj_parser.h"
 
 void graphics_init(graphics_t *const graphics, uint8_t *framebuff, uint16_t width, uint16_t height) {
     graphics->framebuff = framebuff;
@@ -271,14 +268,14 @@ int graphics_draw_ellipse(graphics_t *const gfx, int x0, int y0, int radius_x, i
     return GRAPHICS_OK;
 }
 
-static void swap_vertex(vertex_t *v0, vertex_t *v1) {
-    vertex_t tmp = *v0;
+static void swap_vertex(Vec2i_t *v0, Vec2i_t *v1) {
+    Vec2i_t tmp = *v0;
     *v0 = *v1;
     *v1 = tmp;
     return;
 }
 
-static void sort_tri_vertices_by_y(vertex_t *v0, vertex_t *v1,  vertex_t *v2) {
+static void sort_tri_vertices_by_y(Vec2i_t *v0, Vec2i_t *v1,  Vec2i_t *v2) {
     if (v0->y > v1->y)
         swap_vertex(v0, v1);
 
@@ -291,7 +288,7 @@ static void sort_tri_vertices_by_y(vertex_t *v0, vertex_t *v1,  vertex_t *v2) {
     return;
 }
 
-static void fill_bottom_flat_triangle(graphics_t *const gfx, vertex_t v0, vertex_t v1, vertex_t v2) {
+static void fill_bottom_flat_triangle(graphics_t *const gfx, Vec2i_t v0, Vec2i_t v1, Vec2i_t v2) {
     if (v1.x >= v2.x)
         swap_vertex(&v1, &v2);
 
@@ -338,7 +335,7 @@ static void fill_bottom_flat_triangle(graphics_t *const gfx, vertex_t v0, vertex
     return;
 }
 
-static void fill_top_flat_triangle(graphics_t *const gfx, vertex_t v0, vertex_t v1, vertex_t v2) {
+static void fill_top_flat_triangle(graphics_t *const gfx, Vec2i_t v0, Vec2i_t v1, Vec2i_t v2) {
     if (v0.x >= v1.x)   // we want v0 on the left
         swap_vertex(&v0, &v1);
 
@@ -386,9 +383,9 @@ static void fill_top_flat_triangle(graphics_t *const gfx, vertex_t v0, vertex_t 
 // https://mcejp.github.io/2020/11/06/bresenham.html
 int graphics_draw_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1, int x2, int y2)
 {
-    vertex_t v0 = {x0, y0};
-    vertex_t v1 = {x1, y1};
-    vertex_t v2 = {x2, y2};
+    Vec2i_t v0 = {x0, y0};
+    Vec2i_t v1 = {x1, y1};
+    Vec2i_t v2 = {x2, y2};
     sort_tri_vertices_by_y(&v0, &v1, &v2);
 
     if (gfx->fill_on)
@@ -404,7 +401,7 @@ int graphics_draw_triangle(graphics_t *const gfx, int x0, int y0, int x1, int y1
         else
         {
             // Split into two triangles
-            vertex_t v3 = {
+            Vec2i_t v3 = {
                 (int)(v0.x + ((float)(v1.y - v0.y) / (float)(v2.y - v0.y)) * (v2.x - v0.x)), // Is there a non-float way?
                 v1.y};
 
@@ -547,3 +544,53 @@ int graphics_draw_text(
 
     return GRAPHICS_OK;
 }
+
+
+// === 3D ===
+
+// Project from -1 -> 1 to Screen coordinates
+// Orthogonal projection
+static Vec2i_t project(Vec3f_t vertex, int width, int height) {
+    return (Vec2i_t) {
+        (vertex.x + 1) * width / 2,
+        (vertex.y + 1) * height / 2,
+    };
+}
+
+// Renders a wavefront object
+int graphics_render(graphics_t *const gfx, const char* mesh_file_path) {
+    // Parse the mesh file
+    int res;
+    Mesh_t mesh; 
+    // this should not be done here. We don't want to be parsing and allocating everytime we want to render
+    // SHould probably pass it into the function
+    res = parse_obj(mesh_file_path, &mesh);     
+
+    if (res != PARSER_SUCCESS) return res;
+
+    for (int i = 0; i < mesh.nFaces; i++) {
+        // Draw face
+        int v0_i = mesh.faces[i].x - 1;
+        int v1_i = mesh.faces[i].y - 1;
+        int v2_i = mesh.faces[i].z - 1;
+
+        // Need to translate these to pixel coordinates
+        Vec2i_t v0 = project(mesh.vertices[v0_i], gfx->width, gfx->height);
+        Vec2i_t v1 = project(mesh.vertices[v1_i], gfx->width, gfx->height);
+        Vec2i_t v2 = project(mesh.vertices[v2_i], gfx->width, gfx->height);
+
+        // Ignore z value for now?
+        graphics_draw_triangle(
+            gfx,
+            v0.x, v0.y,
+            v1.x, v1.y,
+            v2.x, v2.y
+        );
+    }
+
+    free_obj(&mesh);
+
+    return GRAPHICS_OK;
+}
+
+

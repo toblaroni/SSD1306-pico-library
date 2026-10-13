@@ -2,12 +2,17 @@
 #define GRAPHICS_MATH_H
 
 // This will contain all math functions
+
+typedef struct {
+    int x;
+    int y;
+} Vec2i_t;
+
 typedef struct {
     float x;
     float y;
     float z;
 } Vec3f_t;
-
 
 typedef struct {
     int x;
@@ -21,13 +26,13 @@ typedef struct {
 } Mat4_t;
 
 
-void vec3_translate(Vec3f_t* v, float x, float y, float z);
-void vec3_scale(Vec3f_t* v, float x, float y, float z);
-Vec3f_t vec3_add(Vec3f_t a, Vec3f_t b);
-Vec3f_t vec3_subtract(Vec3f_t a, Vec3f_t b);
-Vec3f_t vec3_multiply(Vec3f_t a, Vec3f_t b);
-Vec3f_t vec3_dot_product(Vec3f_t a, Vec3f_t b);
-Vec3f_t vec3_cross_product(Vec3f_t a, Vec3f_t b);
+void vec3f_translate(Vec3f_t* v, float x, float y, float z);
+void vec3f_scale(Vec3f_t* v, float x, float y, float z);
+Vec3f_t vec3f_add(Vec3f_t a, Vec3f_t b);
+Vec3f_t vec3f_subtract(Vec3f_t a, Vec3f_t b);
+Vec3f_t vec3f_multiply(Vec3f_t a, Vec3f_t b);
+Vec3f_t vec3f_dot_product(Vec3f_t a, Vec3f_t b);
+Vec3f_t vec3f_cross_product(Vec3f_t a, Vec3f_t b);
 
 Mat4_t mat4_multiply(Mat4_t a, Mat4_t b);
 

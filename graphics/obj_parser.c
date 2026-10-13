@@ -6,8 +6,7 @@
 #include <stdlib.h>
 #include <memory.h>
 
-#define TESTING 1 
-#define VERBOSE 1
+#define TESTING 0
 
 #define MAX_VERTICES 150        // Assume there won't be more than this for a small renderer
 #define MAX_FACES    50        
@@ -61,7 +60,7 @@ static int parse_face(FILE* fp, Vec3i_t* face, int line_num) {
 // Only get vertices, normals and faces
 // Assume there's no errors
 // This is not robust
-int parse_obj(char *file_path, Mesh_t* mesh) {
+int parse_obj(const char *file_path, Mesh_t* mesh) {
     // Open and read the contents of the file
     FILE* fp = fopen(file_path, "r");
 
@@ -130,6 +129,26 @@ int parse_obj(char *file_path, Mesh_t* mesh) {
     mesh->nNormals = 0;
     
     fclose(fp);
+    return PARSER_SUCCESS;
+}
+
+
+int free_obj(Mesh_t* m) {
+    if (m->faces != NULL) {
+        free(m->faces);
+        m->faces = 0;
+    }
+
+    if (m->vertices != NULL) {
+        free(m->vertices);
+        m->faces = 0;
+    }
+
+    if (m->normals != NULL) {
+        free(m->normals);
+        m->nNormals = 0;
+    }
+
     return PARSER_SUCCESS;
 }
 
